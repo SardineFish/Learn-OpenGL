@@ -21,9 +21,16 @@
   <ItemGroup>
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\shaderLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\macro.h" />
+    <ClInclude Include="src\shaderLoader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\shader\vertexShader.glsl">
+      <DeploymentContent>false</DeploymentContent>
+    </None>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
