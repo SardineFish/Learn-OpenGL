@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <time.h>
 
 using namespace std;
 
@@ -37,13 +38,19 @@ int main()
 	glViewport(0, 0, Width, Height);
 	glfwSetFramebufferSizeCallback(window, windowResizeCallback);
 
+	clock_t lastTime = clock();
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
+		clock_t time = clock();
+		cout << "from last time: " << (float)(time - lastTime) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
+		lastTime = time;
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+
 	}
 
+	glfwTerminate();
 	return 0;
 }
 
