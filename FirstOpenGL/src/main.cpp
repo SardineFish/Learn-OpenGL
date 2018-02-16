@@ -12,7 +12,7 @@ const int Height = 720;
 
 void windowResizeCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
-void render();
+void render(float time);
 void initShader();
 void initBuffer();
 
@@ -50,15 +50,17 @@ int main()
 	initShader();
 	initBuffer();
 
-	clock_t lastTime = clock();
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	float lastTime = (float)glfwGetTime();
 	// Render loop
 	while (!glfwWindowShouldClose(window))
 	{
-		clock_t time = clock();
-		cout << "from last time: " << (float)(time - lastTime) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
+		float time = (float)glfwGetTime();
+		//cout << "from last time: " << (float)(time - lastTime) / CLOCKS_PER_SEC * 1000 << "ms" << endl;
 		lastTime = time;
 		processInput(window);
-		render();
+		render(time);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -81,13 +83,17 @@ void processInput(GLFWwindow * window)
 	}
 }
 
-void render()
+void render(float time)
 {
 	glClearColor(RGBA(50, 50, 50, 1.0));
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	int tLocation = glGetUniformLocation(shaderProgram, "t");
+
 	glUseProgram(shaderProgram); 
-	glBindVertexArray(VAO); 
+	glUniform1f(tLocation, time);
+	glBindVertexArray(VAO);
+	//glDrawArrays(GL_TRIANGLES, 0, 6);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
@@ -120,7 +126,9 @@ void initBuffer()
 		.5f,.5f,0,
 		.5f,-.5f,0,
 		-.5f,-.5f,0,
-		-.5f,.5f,0
+		-.5f,.5f,0,
+		.3f,.3f,0.5f,
+		.6f,-.9f,-.5f,
 	};
 	unsigned int indices[] = {
 		0,1,3,
