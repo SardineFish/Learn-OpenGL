@@ -16,18 +16,18 @@ public:
 	void setUniform(string name, float value);
 	void setUniform(string name, float x, float y, float z);
 
-	void setTexture0(string name, Texture texture);
-	void setTexture1(string name, Texture texture);
-	void setTexture2(string name, Texture texture);
-	void setTexture3(string name, Texture texture);
+	void setTexture0(string name, Texture* texture);
+	void setTexture1(string name, Texture* texture);
+	void setTexture2(string name, Texture* texture);
+	void setTexture3(string name, Texture* texture);
 
 	GLuint shaderProgram;
-	Shader vertexShader;
-	Shader fragmentShader;
-	Texture texture0;
-	Texture texture1;
-	Texture texture2;
-	Texture texture3;
+	Shader* vertexShader;
+	Shader* fragmentShader;
+	Texture* texture0;
+	Texture* texture1;
+	Texture* texture2;
+	Texture* texture3;
 	
 };
 

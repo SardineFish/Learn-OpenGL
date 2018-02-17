@@ -5,6 +5,7 @@
 Texture::Texture()
 {
 	flipVertical = true;
+	data = NULL;
 }
 
 Texture::Texture(string path)
@@ -26,5 +27,6 @@ Texture::Texture(string path)
 
 Texture::~Texture()
 {
-	stbi_image_free(data);
+	/*if (data)
+		stbi_image_free(data);*/
 }

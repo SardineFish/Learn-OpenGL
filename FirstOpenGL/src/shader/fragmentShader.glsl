@@ -10,4 +10,5 @@ uniform sampler2D texWall;
 void main()
 {
     FragColor = mix(texture(myTexure,texCoord),texture(texWall,texCoord),.5);
+
 }

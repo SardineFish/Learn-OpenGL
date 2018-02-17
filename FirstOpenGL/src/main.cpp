@@ -4,8 +4,9 @@
 #include <time.h>
 #include "macro.h"
 #include "shaderLoader.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+#include "shader.h"
+#include "shader_program.h"
+#include "texture.h"
 
 using namespace std;
 
@@ -21,9 +22,9 @@ void initShader();
 void initBuffer();
 void initTexture();
 
-unsigned int shaderProgram = 0;
+ShaderProgram shaderProgram;
 unsigned int VBO, VAO, EBO;
-unsigned int texture, texWall;
+Texture texture, texWall;
 
 int main()
 {
@@ -95,44 +96,28 @@ void render(float time)
 	glClearColor(RGBA(50, 50, 50, 1.0));
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	int tLocation = glGetUniformLocation(shaderProgram, "t");
-
-	glUseProgram(shaderProgram); 
-	glUniform1f(tLocation, time);
-	glUniform1i(glGetUniformLocation(shaderProgram, "myTexture"),0);
-	glUniform1i(glGetUniformLocation(shaderProgram, "texWall"), 1);
-
+	//glUseProgram(shaderProgram.shaderProgram);
+	shaderProgram.use();
+	shaderProgram.setUniform("t", time);
+	//glUniform1f(glGetUniformLocation(shaderProgram.shaderProgram, "t"), time);
+	shaderProgram.setTexture0("myTexture", &texture);
+	shaderProgram.setTexture1("texWall", &texWall);
+	//shaderProgram.setUniform("myTexture", 0);
+	//shaderProgram.setUniform("texWall", 1);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture.texture);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texWall);
+	glBindTexture(GL_TEXTURE_2D, texWall.texture);
 	glBindVertexArray(VAO);
-	//glDrawArrays(GL_TRIANGLES, 0, 6);
+	//glDrawArrays(GL_TRIANGLES, 0, 6); 	FirstOpenGL.exe!stbi_image_free(void * retval_from_stbi_load) ÐÐ 934	C++	ÒÑ¼ÓÔØ·ûºÅ¡£
+
 	glDrawElements(GL_TRIANGLES,6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
 void initShader()
 {
-	unsigned int vertexShader = loadShader(GL_VERTEX_SHADER, "src/shader/vertexShader.glsl");
-	unsigned int fragmentShader = loadShader(GL_FRAGMENT_SHADER, "src/shader/fragmentShader.glsl");
-
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	int succeed;
-	char log[1024];
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &succeed);
-	if (!succeed)
-	{
-		glGetProgramInfoLog(shaderProgram, 1024, NULL, log);
-		throw runtime_error(log);
-	}
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	shaderProgram = ShaderProgram("src/shader/vertexShader.glsl", "src/shader/fragmentShader.glsl");
 }
 void initBuffer()
 {
@@ -195,33 +180,10 @@ void initTexture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	stbi_set_flip_vertically_on_load(true);
+	texture = Texture("res/texture/img.jpg");
+	texWall = Texture("res/texture/wall.jpg");
 
-	int w, h, nrChannels;
-	byte* data = stbi_load("res/texture/img.jpg", &w, &h, &nrChannels, 0);
-
-
-	if (!data)
-	{
-		throw runtime_error("Failed to load texture.");
-	}
-
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	stbi_image_free(data);
-
-	data = stbi_load("res/texture/wall.jpg", &w, &h, &nrChannels, 0);
-	if (!data)
-	{
-		throw runtime_error("Failed to load texture.");
-	}
-
-	glGenTextures(1, &texWall);
-	glBindTexture(GL_TEXTURE_2D, texWall);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	stbi_image_free(data);
+	//shaderProgram.setTexture0("myTexture", &texture);
+	//shaderProgram.setTexture1("texWall", &texWall);
 
 }
