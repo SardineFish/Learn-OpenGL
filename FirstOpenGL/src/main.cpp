@@ -2,6 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <time.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "macro.h"
 #include "shaderLoader.h"
 #include "shader.h"
@@ -9,6 +12,7 @@
 #include "texture.h"
 
 using namespace std;
+using namespace glm;
 
 typedef unsigned char byte;
 
@@ -102,6 +106,14 @@ void render(float time)
 	//glUniform1f(glGetUniformLocation(shaderProgram.shaderProgram, "t"), time);
 	shaderProgram.setTexture0("myTexture", &texture);
 	shaderProgram.setTexture1("texWall", &texWall);
+
+	mat4 trans(1.0f);
+	//int idx = glGetUniformLocation(shaderProgram.shaderProgram, "transform");
+	trans = rotate(trans, radians(time*30), vec3(1.0, 1.0, 0.0));
+	//trans = scale(trans, vec3(.8, .8, .8));
+	shaderProgram.setUniformMatrix("transform", value_ptr(trans));
+	//glUniformMatrix4fv(glGetUniformLocation(shaderProgram.shaderProgram, "transform"), 1, GL_FALSE, value_ptr(trans));
+
 	//shaderProgram.setUniform("myTexture", 0);
 	//shaderProgram.setUniform("texWall", 1);
 	glActiveTexture(GL_TEXTURE0);

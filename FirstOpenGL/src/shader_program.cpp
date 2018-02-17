@@ -48,6 +48,11 @@ void ShaderProgram::setUniform(string name, float x, float y, float z)
 	glUniform3f(glGetUniformLocation(this->shaderProgram, name.c_str()), x, y, z);
 }
 
+void ShaderProgram::setUniformMatrix(string name, GLfloat * value)
+{
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, GL_FALSE, value);
+}
+
 void ShaderProgram::setTexture0(string name, Texture* texture)
 {
 	texture0 = texture;

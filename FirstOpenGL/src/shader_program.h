@@ -15,6 +15,7 @@ public:
 	void setUniform(string name, int value);
 	void setUniform(string name, float value);
 	void setUniform(string name, float x, float y, float z);
+	void setUniformMatrix(string name, GLfloat* value);
 
 	void setTexture0(string name, Texture* texture);
 	void setTexture1(string name, Texture* texture);
