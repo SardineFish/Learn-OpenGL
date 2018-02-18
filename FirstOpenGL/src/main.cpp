@@ -62,6 +62,7 @@ int main()
 	initBuffer();
 	initTexture();
 
+	glEnable(GL_DEPTH_TEST);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	float lastTime = (float)glfwGetTime();
@@ -98,7 +99,7 @@ void processInput(GLFWwindow * window)
 void render(float time)
 {
 	glClearColor(RGBA(50, 50, 50, 1.0));
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//glUseProgram(shaderProgram.shaderProgram);
 	shaderProgram.use();
@@ -107,9 +108,32 @@ void render(float time)
 	shaderProgram.setTexture0("myTexture", &texture);
 	shaderProgram.setTexture1("texWall", &texWall);
 
-	mat4 trans(1.0f);
+	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
+
+	mat4 model;
+	model = rotate(model, radians(time*10), vec3(1.0f, 0, 0));
+	model = rotate(model, radians(time * 30), vec3(0, 1.0f, 0));
+	mat4 view;
+	view = translate(view, vec3(0, 0, -3.0f));
+	mat4 projection;
+	projection = perspective(radians(90.0f), (float)Width / (float)Height, 0.1f, 100.0f);
+
+	mat4 trans = projection * view*model;
+	//trans = perspective(radians(45.0f), 1.0f, -0.5f, 10.0f);
+
 	//int idx = glGetUniformLocation(shaderProgram.shaderProgram, "transform");
-	trans = rotate(trans, radians(time*30), vec3(1.0, 1.0, 0.0));
+	//trans = rotate(trans, radians(time*30), vec3(1.0, 1.0, 0.0));
 	//trans = scale(trans, vec3(.8, .8, .8));
 	shaderProgram.setUniformMatrix("transform", value_ptr(trans));
 	//glUniformMatrix4fv(glGetUniformLocation(shaderProgram.shaderProgram, "transform"), 1, GL_FALSE, value_ptr(trans));
@@ -121,9 +145,20 @@ void render(float time)
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texWall.texture);
 	glBindVertexArray(VAO);
-	//glDrawArrays(GL_TRIANGLES, 0, 6); 	FirstOpenGL.exe!stbi_image_free(void * retval_from_stbi_load) ÐÐ 934	C++	ÒÑ¼ÓÔØ·ûºÅ¡£
+	for (int i = 0; i < 10; i++)
+	{
+		model = translate(mat4(1.0), cubePositions[i]);
+		
+		trans = projection * view * model;
+		trans = rotate(trans, radians(time * 10), vec3(1.0f, 0, 0));
+		trans = rotate(trans, radians(time * 30), vec3(0, 1.0f, 0));
 
-	glDrawElements(GL_TRIANGLES,6, GL_UNSIGNED_INT, 0);
+		shaderProgram.setUniformMatrix("transform", value_ptr(trans));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
+	//glDrawArrays(GL_TRIANGLES, 0, 36); 
+
+	//glDrawElements(GL_TRIANGLES,6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
@@ -134,13 +169,47 @@ void initShader()
 void initBuffer()
 {
 	float vertices[] = {
-		.6f,.6f,0,  1,1,1,				1.5,1.5,
-		.5f,-.5f,0,  0.5f,0,1,			1,0,
-		-.5f,-.5f,0,  0.7f,0.6f,0.3f,	0,0,
-		-.5f,.5f,0,  0.3f, 0.5f,0.1f,	0,1,
-		.5,-.5,.5, 1,1,1,				1,-1,
-		-.5,-.5,.5,1,1,1,				-1,-1,
-		0,.5,.5,1,1,1,					0,1,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 	unsigned int indices[] = {
 		0,1,3,
@@ -173,12 +242,12 @@ void initBuffer()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// Set the vertex attributes pointers
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
+	/*glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);*/
 
 	
 
